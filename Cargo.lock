@@ -1727,6 +1727,9 @@ dependencies = [
  "phf",
  "rustc-hash",
  "serde",
+ "serde-wasm-bindgen",
+ "tsify",
+ "wasm-bindgen",
 ]
 
 [[package]]
@@ -1736,6 +1739,9 @@ dependencies = [
  "compact_str",
  "miette",
  "serde",
+ "serde-wasm-bindgen",
+ "tsify",
+ "wasm-bindgen",
 ]
 
 [[package]]
@@ -1750,7 +1756,10 @@ dependencies = [
  "phf",
  "rustc-hash",
  "serde",
+ "serde-wasm-bindgen",
+ "tsify",
  "unicode-id-start",
+ "wasm-bindgen",
 ]
 
 [[package]]
