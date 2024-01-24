@@ -12,6 +12,9 @@
 #[cfg(feature = "serde")]
 mod serialize;
 
+#[macro_use]
+extern crate macro_rules_attribute;
+
 pub mod ast;
 mod ast_builder;
 mod ast_kind;
@@ -72,4 +75,13 @@ fn size_asserts() {
     assert_eq_size!(ast::AssignmentTargetProperty, [u8; 16]);
     assert_eq_size!(ast::TSLiteral, [u8; 16]);
     assert_eq_size!(ast::TSType, [u8; 16]);
+}
+
+attribute_alias! {
+    #[apply(tagged_serde_ts!)] = 
+        #[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+        #[cfg_attr(all(feature = "serde", feature = "wasm"), derive(Tsify))];
+    #[apply(untagged_serde_ts!)] = 
+        #[cfg_attr(feature = "serde", derive(Serialize), serde(untagged))]
+        #[cfg_attr(all(feature = "serde", feature = "wasm"), derive(Tsify))];
 }
