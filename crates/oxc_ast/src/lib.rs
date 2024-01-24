@@ -78,6 +78,9 @@ fn size_asserts() {
 }
 
 attribute_alias! {
+    #[apply(unconfigured_serde_ts!)] = 
+        #[cfg_attr(feature = "serde", derive(Serialize))]
+        #[cfg_attr(all(feature = "serde", feature = "wasm"), derive(Tsify))];
     #[apply(tagged_serde_ts!)] = 
         #[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
         #[cfg_attr(all(feature = "serde", feature = "wasm"), derive(Tsify))];
