@@ -198,8 +198,7 @@ pub struct TSTypeOperatorType<'a> {
 }
 
 #[derive(Debug, Hash)]
-#[apply(unconfigured_serde_ts!)]
-#[cfg_attr(feature = "serde", serde(untagged, rename_all = "lowercase"))]
+#[cfg_attr(feature = "serde", derive(Serialize), serde(untagged, rename_all = "lowercase"))]
 pub enum TSTypeOperator {
     Keyof,
     Unique,
