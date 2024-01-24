@@ -4,10 +4,11 @@ use oxc_span::Span;
 #[cfg(feature = "serde")]
 use serde::Serialize;
 
-use crate::ast::TSType;
+use crate::{ast::TSType, unconfigured_serde_ts};
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type", rename_all = "camelCase"))]
+#[apply(unconfigured_serde_ts!)]
+#[cfg_attr(feature = "serde", serde(tag = "type", rename_all = "camelCase"))]
 pub struct JSDocNullableType<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -16,7 +17,8 @@ pub struct JSDocNullableType<'a> {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type", rename_all = "camelCase"))]
+#[apply(unconfigured_serde_ts!)]
+#[cfg_attr(feature = "serde", serde(tag = "type", rename_all = "camelCase"))]
 pub struct JSDocUnknownType {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
