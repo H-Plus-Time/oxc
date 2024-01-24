@@ -16,10 +16,11 @@ use tsify::Tsify;
 
 #[allow(clippy::wildcard_imports)]
 use crate::ast::*;
+use crate::{tagged_serde_ts, untagged_serde_ts, unconfigured_serde_ts};
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type", rename_all = "camelCase"))]
-#[cfg_attr(all(feature = "serde", feature = "wasm"), derive(Tsify))]
+#[apply(tagged_serde_ts!)]
+#[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
 pub struct Program<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -43,8 +44,7 @@ impl<'a> Program<'a> {
 
 /// Expression
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(untagged))]
-#[cfg_attr(all(feature = "serde", feature = "wasm"), derive(Tsify))]
+#[apply(untagged_serde_ts!)]
 pub enum Expression<'a> {
     BooleanLiteral(Box<'a, BooleanLiteral>),
     NullLiteral(Box<'a, NullLiteral>),
@@ -293,7 +293,7 @@ impl<'a> Expression<'a> {
 
 /// Identifier Name
 #[derive(Debug, Clone, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct IdentifierName {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -308,7 +308,7 @@ impl IdentifierName {
 
 /// Identifier Reference
 #[derive(Debug, Clone)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct IdentifierReference {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -334,7 +334,7 @@ impl IdentifierReference {
 
 /// Binding Identifier
 #[derive(Debug, Clone)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct BindingIdentifier {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -358,7 +358,7 @@ impl BindingIdentifier {
 
 /// Label Identifier
 #[derive(Debug, Clone, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct LabelIdentifier {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -367,7 +367,7 @@ pub struct LabelIdentifier {
 
 /// This Expression
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct ThisExpression {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -375,7 +375,7 @@ pub struct ThisExpression {
 
 /// Array Expression
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct ArrayExpression<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -385,7 +385,7 @@ pub struct ArrayExpression<'a> {
 
 /// Array Expression Element
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(untagged))]
+#[apply(untagged_serde_ts!)]
 pub enum ArrayExpressionElement<'a> {
     SpreadElement(Box<'a, SpreadElement<'a>>),
     Expression(Expression<'a>),
@@ -394,7 +394,7 @@ pub enum ArrayExpressionElement<'a> {
 
 /// Object Expression
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct ObjectExpression<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -410,14 +410,14 @@ impl<'a> ObjectExpression<'a> {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(untagged))]
+#[apply(untagged_serde_ts!)]
 pub enum ObjectPropertyKind<'a> {
     ObjectProperty(Box<'a, ObjectProperty<'a>>),
     SpreadProperty(Box<'a, SpreadElement<'a>>),
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct ObjectProperty<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -431,7 +431,7 @@ pub struct ObjectProperty<'a> {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(untagged))]
+#[apply(untagged_serde_ts!)]
 pub enum PropertyKey<'a> {
     Identifier(Box<'a, IdentifierName>),
     PrivateIdentifier(Box<'a, PrivateIdentifier>),
@@ -493,7 +493,8 @@ impl<'a> PropertyKey<'a> {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(rename_all = "lowercase"))]
+#[apply(unconfigured_serde_ts!)]
+#[cfg_attr(feature = "serde", serde(rename_all = "lowercase"))]
 pub enum PropertyKind {
     Init,
     Get,
@@ -504,7 +505,7 @@ pub enum PropertyKind {
 ///
 /// This is interpreted by interleaving the expression elements in between the quasi elements.
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct TemplateLiteral<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -524,7 +525,7 @@ impl<'a> TemplateLiteral<'a> {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct TaggedTemplateExpression<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -534,7 +535,7 @@ pub struct TaggedTemplateExpression<'a> {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct TemplateElement {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -545,7 +546,7 @@ pub struct TemplateElement {
 /// See [template-strings-cooked-vs-raw](https://exploringjs.com/impatient-js/ch_template-literals.html#template-strings-cooked-vs-raw)
 /// for more info
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize))]
+#[apply(unconfigured_serde_ts!)]
 pub struct TemplateElementValue {
     /// A raw interpretation where backslashes do not have special meaning.
     /// For example, \t produces two characters – a backslash and a t.
@@ -560,7 +561,7 @@ pub struct TemplateElementValue {
 
 /// Member Expression
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(untagged))]
+#[apply(untagged_serde_ts!)]
 pub enum MemberExpression<'a> {
     ComputedMemberExpression(ComputedMemberExpression<'a>),
     StaticMemberExpression(StaticMemberExpression<'a>),
@@ -634,7 +635,7 @@ impl<'a> MemberExpression<'a> {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct ComputedMemberExpression<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -644,7 +645,7 @@ pub struct ComputedMemberExpression<'a> {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct StaticMemberExpression<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -654,7 +655,7 @@ pub struct StaticMemberExpression<'a> {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct PrivateFieldExpression<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -665,7 +666,8 @@ pub struct PrivateFieldExpression<'a> {
 
 /// Call Expression
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type", rename_all = "camelCase"))]
+#[apply(tagged_serde_ts!)]
+#[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
 pub struct CallExpression<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -718,7 +720,7 @@ impl<'a> CallExpression<'a> {
 
 /// New Expression
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct NewExpression<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -729,7 +731,7 @@ pub struct NewExpression<'a> {
 
 /// Meta Property `new.target` | `import.meta`
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct MetaProperty {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -739,7 +741,7 @@ pub struct MetaProperty {
 
 /// Spread Element
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct SpreadElement<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -748,7 +750,7 @@ pub struct SpreadElement<'a> {
 
 /// Argument
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(untagged))]
+#[apply(untagged_serde_ts!)]
 pub enum Argument<'a> {
     SpreadElement(Box<'a, SpreadElement<'a>>),
     Expression(Expression<'a>),
@@ -762,7 +764,7 @@ impl Argument<'_> {
 
 /// Update Expression
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct UpdateExpression<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -773,7 +775,7 @@ pub struct UpdateExpression<'a> {
 
 /// Unary Expression
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct UnaryExpression<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -783,7 +785,7 @@ pub struct UnaryExpression<'a> {
 
 /// Binary Expression
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct BinaryExpression<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -794,7 +796,7 @@ pub struct BinaryExpression<'a> {
 
 /// Private Identifier in Shift Expression
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct PrivateInExpression<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -805,7 +807,7 @@ pub struct PrivateInExpression<'a> {
 
 /// Binary Logical Operators
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct LogicalExpression<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -816,7 +818,7 @@ pub struct LogicalExpression<'a> {
 
 /// Conditional Expression
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct ConditionalExpression<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -827,7 +829,7 @@ pub struct ConditionalExpression<'a> {
 
 /// Assignment Expression
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct AssignmentExpression<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -838,7 +840,7 @@ pub struct AssignmentExpression<'a> {
 
 /// Destructuring Assignment
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(untagged))]
+#[apply(untagged_serde_ts!)]
 pub enum AssignmentTarget<'a> {
     SimpleAssignmentTarget(SimpleAssignmentTarget<'a>),
     AssignmentTargetPattern(AssignmentTargetPattern<'a>),
@@ -862,7 +864,7 @@ impl<'a> AssignmentTarget<'a> {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(untagged))]
+#[apply(untagged_serde_ts!)]
 pub enum SimpleAssignmentTarget<'a> {
     AssignmentTargetIdentifier(Box<'a, IdentifierReference>),
     MemberAssignmentTarget(Box<'a, MemberExpression<'a>>),
@@ -885,14 +887,14 @@ impl<'a> SimpleAssignmentTarget<'a> {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(untagged))]
+#[apply(untagged_serde_ts!)]
 pub enum AssignmentTargetPattern<'a> {
     ArrayAssignmentTarget(Box<'a, ArrayAssignmentTarget<'a>>),
     ObjectAssignmentTarget(Box<'a, ObjectAssignmentTarget<'a>>),
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct ArrayAssignmentTarget<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -902,7 +904,7 @@ pub struct ArrayAssignmentTarget<'a> {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct ObjectAssignmentTarget<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -921,7 +923,7 @@ impl<'a> ObjectAssignmentTarget<'a> {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(untagged))]
+#[apply(untagged_serde_ts!)]
 pub enum AssignmentTargetMaybeDefault<'a> {
     AssignmentTarget(AssignmentTarget<'a>),
     AssignmentTargetWithDefault(Box<'a, AssignmentTargetWithDefault<'a>>),
@@ -946,7 +948,7 @@ impl<'a> AssignmentTargetMaybeDefault<'a> {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct AssignmentTargetWithDefault<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -955,7 +957,7 @@ pub struct AssignmentTargetWithDefault<'a> {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(untagged))]
+#[apply(untagged_serde_ts!)]
 pub enum AssignmentTargetProperty<'a> {
     AssignmentTargetPropertyIdentifier(Box<'a, AssignmentTargetPropertyIdentifier<'a>>),
     AssignmentTargetPropertyProperty(Box<'a, AssignmentTargetPropertyProperty<'a>>),
@@ -963,7 +965,7 @@ pub enum AssignmentTargetProperty<'a> {
 
 /// Assignment Property - Identifier Reference
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct AssignmentTargetPropertyIdentifier<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -973,7 +975,7 @@ pub struct AssignmentTargetPropertyIdentifier<'a> {
 
 /// Assignment Property - Property Name
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct AssignmentTargetPropertyProperty<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -983,7 +985,7 @@ pub struct AssignmentTargetPropertyProperty<'a> {
 
 /// Sequence Expression
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct SequenceExpression<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -991,7 +993,7 @@ pub struct SequenceExpression<'a> {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct Super {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -999,7 +1001,7 @@ pub struct Super {
 
 /// Await Expression
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct AwaitExpression<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1007,7 +1009,7 @@ pub struct AwaitExpression<'a> {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct ChainExpression<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1015,7 +1017,7 @@ pub struct ChainExpression<'a> {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(untagged))]
+#[apply(untagged_serde_ts!)]
 pub enum ChainElement<'a> {
     CallExpression(Box<'a, CallExpression<'a>>),
     MemberExpression(Box<'a, MemberExpression<'a>>),
@@ -1023,7 +1025,7 @@ pub enum ChainElement<'a> {
 
 /// Parenthesized Expression
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct ParenthesizedExpression<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1032,7 +1034,7 @@ pub struct ParenthesizedExpression<'a> {
 
 /// Statements
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(untagged))]
+#[apply(untagged_serde_ts!)]
 pub enum Statement<'a> {
     // Statements
     BlockStatement(Box<'a, BlockStatement<'a>>),
@@ -1060,7 +1062,7 @@ pub enum Statement<'a> {
 
 /// Directive Prologue
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct Directive {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1073,7 +1075,7 @@ pub struct Directive {
 
 /// Hashbang
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct Hashbang {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1082,7 +1084,7 @@ pub struct Hashbang {
 
 /// Block Statement
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct BlockStatement<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1091,7 +1093,7 @@ pub struct BlockStatement<'a> {
 
 /// Declarations and the Variable Statement
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(untagged))]
+#[apply(untagged_serde_ts!)]
 pub enum Declaration<'a> {
     VariableDeclaration(Box<'a, VariableDeclaration<'a>>),
     FunctionDeclaration(Box<'a, Function<'a>>),
@@ -1130,7 +1132,8 @@ impl<'a> Declaration<'a> {
 
 /// Variable Declaration
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type", rename_all = "camelCase"))]
+#[apply(tagged_serde_ts!)]
+#[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
 pub struct VariableDeclaration<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1147,7 +1150,8 @@ impl<'a> VariableDeclaration<'a> {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(rename_all = "lowercase"))]
+#[apply(unconfigured_serde_ts!)]
+#[cfg_attr(feature = "serde", serde(rename_all = "lowercase"))]
 pub enum VariableDeclarationKind {
     Var,
     Const,
@@ -1184,7 +1188,7 @@ impl fmt::Display for VariableDeclarationKind {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct VariableDeclarator<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1198,7 +1202,8 @@ pub struct VariableDeclarator<'a> {
 /// Using Declaration
 /// <https://github.com/tc39/proposal-explicit-resource-management>
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type", rename_all = "camelCase"))]
+#[apply(tagged_serde_ts!)]
+#[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
 pub struct UsingDeclaration<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1209,7 +1214,7 @@ pub struct UsingDeclaration<'a> {
 
 /// Empty Statement
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct EmptyStatement {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1217,7 +1222,7 @@ pub struct EmptyStatement {
 
 /// Expression Statement
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct ExpressionStatement<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1226,7 +1231,7 @@ pub struct ExpressionStatement<'a> {
 
 /// If Statement
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct IfStatement<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1237,7 +1242,7 @@ pub struct IfStatement<'a> {
 
 /// Do-While Statement
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct DoWhileStatement<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1247,7 +1252,7 @@ pub struct DoWhileStatement<'a> {
 
 /// While Statement
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct WhileStatement<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1257,7 +1262,7 @@ pub struct WhileStatement<'a> {
 
 /// For Statement
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct ForStatement<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1268,7 +1273,7 @@ pub struct ForStatement<'a> {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(untagged))]
+#[apply(untagged_serde_ts!)]
 pub enum ForStatementInit<'a> {
     VariableDeclaration(Box<'a, VariableDeclaration<'a>>),
     Expression(Expression<'a>),
@@ -1292,7 +1297,7 @@ impl<'a> ForStatementInit<'a> {
 
 /// For-In Statement
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct ForInStatement<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1303,7 +1308,7 @@ pub struct ForInStatement<'a> {
 
 /// For-Of Statement
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct ForOfStatement<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1314,7 +1319,7 @@ pub struct ForOfStatement<'a> {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(untagged))]
+#[apply(untagged_serde_ts!)]
 pub enum ForStatementLeft<'a> {
     VariableDeclaration(Box<'a, VariableDeclaration<'a>>),
     AssignmentTarget(AssignmentTarget<'a>),
@@ -1331,7 +1336,7 @@ impl<'a> ForStatementLeft<'a> {
 
 /// Continue Statement
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct ContinueStatement {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1340,7 +1345,7 @@ pub struct ContinueStatement {
 
 /// Break Statement
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct BreakStatement {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1349,7 +1354,7 @@ pub struct BreakStatement {
 
 /// Return Statement
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct ReturnStatement<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1358,7 +1363,7 @@ pub struct ReturnStatement<'a> {
 
 /// With Statement
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct WithStatement<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1368,7 +1373,7 @@ pub struct WithStatement<'a> {
 
 /// Switch Statement
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct SwitchStatement<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1377,7 +1382,7 @@ pub struct SwitchStatement<'a> {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct SwitchCase<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1393,7 +1398,7 @@ impl<'a> SwitchCase<'a> {
 
 /// Labelled Statement
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct LabeledStatement<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1403,7 +1408,7 @@ pub struct LabeledStatement<'a> {
 
 /// Throw Statement
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct ThrowStatement<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1412,7 +1417,7 @@ pub struct ThrowStatement<'a> {
 
 /// Try Statement
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct TryStatement<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1422,7 +1427,7 @@ pub struct TryStatement<'a> {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct CatchClause<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1432,7 +1437,7 @@ pub struct CatchClause<'a> {
 
 /// Debugger Statement
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct DebuggerStatement {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1440,7 +1445,8 @@ pub struct DebuggerStatement {
 
 /// Destructuring Binding Patterns
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type", rename_all = "camelCase"))]
+#[apply(tagged_serde_ts!)]
+#[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
 pub struct BindingPattern<'a> {
     pub kind: BindingPatternKind<'a>,
     pub type_annotation: Option<Box<'a, TSTypeAnnotation<'a>>>,
@@ -1448,7 +1454,7 @@ pub struct BindingPattern<'a> {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(untagged))]
+#[apply(untagged_serde_ts!)]
 pub enum BindingPatternKind<'a> {
     /// `const a = 1`
     BindingIdentifier(Box<'a, BindingIdentifier>),
@@ -1474,7 +1480,7 @@ impl<'a> BindingPatternKind<'a> {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct AssignmentPattern<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1483,7 +1489,7 @@ pub struct AssignmentPattern<'a> {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct ObjectPattern<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1502,7 +1508,7 @@ impl<'a> ObjectPattern<'a> {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct BindingProperty<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1513,7 +1519,7 @@ pub struct BindingProperty<'a> {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct ArrayPattern<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1532,7 +1538,7 @@ impl<'a> ArrayPattern<'a> {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct BindingRestElement<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1541,7 +1547,8 @@ pub struct BindingRestElement<'a> {
 
 /// Function Definitions
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(rename_all = "camelCase"))]
+#[apply(unconfigured_serde_ts!)]
+#[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
 pub struct Function<'a> {
     pub r#type: FunctionType,
     #[cfg_attr(feature = "serde", serde(flatten))]
@@ -1605,7 +1612,7 @@ impl<'a> Function<'a> {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize))]
+#[apply(unconfigured_serde_ts!)]
 pub enum FunctionType {
     FunctionDeclaration,
     FunctionExpression,
@@ -1613,7 +1620,7 @@ pub enum FunctionType {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct FormalParameters<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1629,7 +1636,7 @@ impl<'a> FormalParameters<'a> {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct FormalParameter<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1640,7 +1647,7 @@ pub struct FormalParameter<'a> {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize))]
+#[apply(unconfigured_serde_ts!)]
 pub enum FormalParameterKind {
     /// <https://tc39.es/ecma262/#prod-FormalParameters>
     FormalParameter,
@@ -1665,7 +1672,7 @@ impl<'a> FormalParameters<'a> {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct FunctionBody<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1681,7 +1688,8 @@ impl<'a> FunctionBody<'a> {
 
 /// Arrow Function Definitions
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type", rename_all = "camelCase"))]
+#[apply(tagged_serde_ts!)]
+#[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
 pub struct ArrowExpression<'a> {
     pub span: Span,
     /// Is the function body an arrow expression? i.e. `() => expr` instead of `() => {}`
@@ -1710,7 +1718,7 @@ impl<'a> ArrowExpression<'a> {
 
 /// Generator Function Definitions
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct YieldExpression<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1720,7 +1728,8 @@ pub struct YieldExpression<'a> {
 
 /// Class Definitions
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(rename_all = "camelCase"))]
+#[apply(unconfigured_serde_ts!)]
+#[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
 pub struct Class<'a> {
     pub r#type: ClassType,
     #[cfg_attr(feature = "serde", serde(flatten))]
@@ -1755,14 +1764,14 @@ impl<'a> Class<'a> {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize))]
+#[apply(unconfigured_serde_ts!)]
 pub enum ClassType {
     ClassDeclaration,
     ClassExpression,
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct ClassBody<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1770,7 +1779,7 @@ pub struct ClassBody<'a> {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(untagged))]
+#[apply(untagged_serde_ts!)]
 pub enum ClassElement<'a> {
     StaticBlock(Box<'a, StaticBlock<'a>>),
     MethodDefinition(Box<'a, MethodDefinition<'a>>),
@@ -1873,7 +1882,7 @@ impl<'a> ClassElement<'a> {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct MethodDefinition<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1889,7 +1898,8 @@ pub struct MethodDefinition<'a> {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type", rename_all = "camelCase"))]
+#[apply(tagged_serde_ts!)]
+#[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
 pub struct PropertyDefinition<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1908,7 +1918,8 @@ pub struct PropertyDefinition<'a> {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(rename_all = "lowercase"))]
+#[apply(unconfigured_serde_ts!)]
+#[cfg_attr(feature = "serde", serde(rename_all = "lowercase"))]
 pub enum MethodDefinitionKind {
     Constructor,
     Method,
@@ -1926,7 +1937,7 @@ impl MethodDefinitionKind {
 }
 
 #[derive(Debug, Clone, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct PrivateIdentifier {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1934,7 +1945,7 @@ pub struct PrivateIdentifier {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct StaticBlock<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -1942,7 +1953,7 @@ pub struct StaticBlock<'a> {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(untagged))]
+#[apply(untagged_serde_ts!)]
 pub enum ModuleDeclaration<'a> {
     /// import hello from './world.js';
     /// import * as t from './world.js';
@@ -1989,7 +2000,7 @@ impl<'a> ModuleDeclaration<'a> {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct AccessorProperty<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -2000,7 +2011,7 @@ pub struct AccessorProperty<'a> {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct ImportExpression<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -2009,7 +2020,8 @@ pub struct ImportExpression<'a> {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type", rename_all = "camelCase"))]
+#[apply(tagged_serde_ts!)]
+#[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
 pub struct ImportDeclaration<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -2021,7 +2033,7 @@ pub struct ImportDeclaration<'a> {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(untagged))]
+#[apply(untagged_serde_ts!)]
 pub enum ImportDeclarationSpecifier {
     /// import {imported} from "source"
     /// import {imported as local} from "source"
@@ -2035,7 +2047,8 @@ pub enum ImportDeclarationSpecifier {
 // import {imported} from "source"
 // import {imported as local} from "source"
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type", rename_all = "camelCase"))]
+#[apply(tagged_serde_ts!)]
+#[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
 pub struct ImportSpecifier {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -2046,7 +2059,7 @@ pub struct ImportSpecifier {
 
 // import local from "source"
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct ImportDefaultSpecifier {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -2055,7 +2068,7 @@ pub struct ImportDefaultSpecifier {
 
 // import * as local from "source"
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct ImportNamespaceSpecifier {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -2063,7 +2076,7 @@ pub struct ImportNamespaceSpecifier {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct WithClause<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -2072,7 +2085,7 @@ pub struct WithClause<'a> {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct ImportAttribute {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -2081,7 +2094,7 @@ pub struct ImportAttribute {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(untagged))]
+#[apply(untagged_serde_ts!)]
 pub enum ImportAttributeKey {
     Identifier(IdentifierName),
     StringLiteral(StringLiteral),
@@ -2097,7 +2110,7 @@ impl ImportAttributeKey {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct ExportNamedDeclaration<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -2119,7 +2132,7 @@ impl<'a> ExportNamedDeclaration<'a> {
 /// export default ClassDeclaration
 /// export default AssignmentExpression
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct ExportDefaultDeclaration<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -2134,7 +2147,7 @@ impl<'a> ExportDefaultDeclaration<'a> {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct ExportAllDeclaration<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -2151,7 +2164,7 @@ impl<'a> ExportAllDeclaration<'a> {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct ExportSpecifier {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -2161,7 +2174,7 @@ pub struct ExportSpecifier {
 }
 
 #[derive(Debug, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(untagged))]
+#[apply(untagged_serde_ts!)]
 pub enum ExportDefaultDeclarationKind<'a> {
     Expression(Expression<'a>),
     FunctionDeclaration(Box<'a, Function<'a>>),
@@ -2198,7 +2211,7 @@ impl<'a> ExportDefaultDeclarationKind<'a> {
 //   import {"\0 any unicode" as foo} from "";
 //   export {foo as "\0 any unicode"};
 #[derive(Debug, Clone, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(untagged))]
+#[apply(untagged_serde_ts!)]
 pub enum ModuleExportName {
     Identifier(IdentifierName),
     StringLiteral(StringLiteral),

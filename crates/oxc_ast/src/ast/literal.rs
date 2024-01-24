@@ -12,8 +12,10 @@ use oxc_syntax::{BigintBase, NumberBase};
 #[cfg(feature = "serde")]
 use serde::Serialize;
 
+use crate::{tagged_serde_ts, unconfigured_serde_ts};
+
 #[derive(Debug, Clone, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct BooleanLiteral {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -35,7 +37,7 @@ impl BooleanLiteral {
 }
 
 #[derive(Debug, Clone)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct NullLiteral {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -54,7 +56,7 @@ impl NullLiteral {
 }
 
 #[derive(Debug, Clone)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct NumberLiteral<'a> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -105,7 +107,7 @@ impl<'a> Hash for NumberLiteral<'a> {
 }
 
 #[derive(Debug, Clone, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct BigintLiteral {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -116,7 +118,7 @@ pub struct BigintLiteral {
 }
 
 #[derive(Debug, Clone, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct RegExpLiteral {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
@@ -127,7 +129,7 @@ pub struct RegExpLiteral {
 }
 
 #[derive(Debug, Clone, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize))]
+#[apply(unconfigured_serde_ts!)]
 pub struct RegExp {
     pub pattern: Atom,
     pub flags: RegExpFlags,
@@ -203,11 +205,11 @@ impl fmt::Display for RegExpFlags {
 }
 
 #[derive(Debug, Clone, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize))]
+#[apply(unconfigured_serde_ts!)]
 pub struct EmptyObject;
 
 #[derive(Debug, Clone, Hash)]
-#[cfg_attr(feature = "serde", derive(Serialize), serde(tag = "type"))]
+#[apply(tagged_serde_ts!)]
 pub struct StringLiteral {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub span: Span,
