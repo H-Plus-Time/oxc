@@ -65,14 +65,13 @@ jobs:
           cargo check -p oxc_wasm --target wasm32-unknown-unknown
       - name: Build types
         run: |
-          cargo binstall wasm-pack
-          wasm-pack build --target web ./crates/oxc_wasm
+          npx -y wasm-pack build --target web ./crates/oxc_wasm
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
       - name: Check output types
-        run: npx -p typescript tsc crates/oxc_wasm/pkg/oxc_wasm.d.ts
+        run: npx -y -p typescript tsc crates/oxc_wasm/pkg/oxc_wasm.d.ts
   typos:
     name: Spell Check
     runs-on: ubuntu-latest
