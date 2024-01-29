@@ -64,7 +64,9 @@ jobs:
           rustup target add wasm32-unknown-unknown
           cargo check -p oxc_wasm --target wasm32-unknown-unknown
       - name: Build types
-        run: wasm-pack build --target web ./crates/oxc_wasm
+        run: |
+          cargo binstall wasm-pack
+          wasm-pack build --target web ./crates/oxc_wasm
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
