@@ -71,7 +71,7 @@ jobs:
         with:
           node-version: 20
       - name: Check output types
-        run: npx -y -p typescript tsc crates/oxc_wasm/pkg/oxc_wasm.d.ts
+        run: npx -y -p typescript tsc --lib es2020,dom crates/oxc_wasm/pkg/oxc_wasm.d.ts
   typos:
     name: Spell Check
     runs-on: ubuntu-latest
