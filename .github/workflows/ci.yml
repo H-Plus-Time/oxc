@@ -65,7 +65,7 @@ jobs:
           cargo check -p oxc_wasm --target wasm32-unknown-unknown
       - name: Build types
         run: |
-          npx -y wasm-pack build --target web ./crates/oxc_wasm
+          npx -y wasm-pack build --target web --dev ./crates/oxc_wasm
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
